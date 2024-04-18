@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website login and register</title>
+    <link rel="stylesheet" href="{% static 'myapp/style.css' %}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Event listener for login form submission
+            $('#loginForm').submit(function(event) {
+                event.preventDefault();  // Prevent default form submission
+        
+                // Retrieve form data
+                var formData = $(this).serialize();
+        
+                // Send AJAX request to handle login form submission
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'myapp:index' %}",
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // Redirect to services page upon successful login
+                            window.location.href = "{% url 'myapp:services' %}";
+                        } else {
+                            // Display error message for login form
+                            $('#errorMessage').html('<li>' + response.error_message + '</li>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        // Handle AJAX error if needed
+                    }
+                });
+            });
+        
+            // Event listener for registration form submission
+            $('#registerForm').submit(function(event) {
+                event.preventDefault();  // Prevent default form submission
+        
+                // Retrieve form data
+                var formData = $(this).serialize();
+        
+                // Send AJAX request to handle registration form submission
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'myapp:index' %}",
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // Redirect to services page upon successful registration
+                            window.location.href = "{% url 'myapp:services' %}";
+                        } else {
+                            // Display error message for registration form
+                            $('#registerErrorMessage').html('<li>' + response.error_message + '</li>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        // Handle AJAX error if needed
+                    }
+                });
+            });
+        });
+    </script>
+
+
+</head>
+
+<body>
+    <header>
+        <h2 class="logo">Saroops</h2>
+        <nav class="navigation">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+            <button class="btnlogin-popup">Login</button>
+        </nav>
+    </header>
+
+            
+
+    <div class="wrapper">
+        <span class="icon-close">
+            <ion-icon name="close"></ion-icon>
+        </span>
+        <div class="form-box login">
+            <h2>Login</h2>
+            <form id="loginForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="form_id" value="login">
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                    <input type="text" name="username" required>
+                    <label>Username</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" name="password" required>
+                    <label>Password</label>
+                </div>
+                 
+                <!-- <div>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                    {% endif %}
+                    <br>
+                </div> -->
+                <div>
+                    <div id="errorMessage"></div>
+                    <br>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="login-register">    
+                    <p>Don't have an account? <a href="#" class="register-link">Register</a></p>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-box register">
+            <h2>Registration</h2>
+            <form id="registerForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="form_id" value="register">
+                <div class="input-box">
+                    <span class="icon">
+                        <ion-icon name="person"></ion-icon>
+                    </span>
+                    <input type="text" name="username" required>
+                    <label>Username</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                    <input type="email" name="email" required>
+                    <label>Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" name="password1" required>
+                    <label>Password</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" name="password2" required>
+                    <label>Confirm Password</label>
+                </div> 
+                <div>
+                    <div id="registerErrorMessage"></div>
+                    <br>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <div class="login-register">
+                    <p>Already have an account? <a href="#" class="login-link">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="{% static 'myapp/script.js' %}"></script> 
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
