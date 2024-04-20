@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
-from .utils import city_lat_lng, distance, haversine_distance, calculate_vector_angle, makeGaussian
+from .utils import *
 import json
 from .models import FlightInfo
+import os
 
 # Create your views here.
 
@@ -140,9 +141,39 @@ def services(request):
             gauss_distr = makeGaussian(96, 25, 13, angle)
 
             # Call a function which downloads the bathymetry data using Selenium
-            
+            download_bathymetry_data(lkp_latitude, lkp_longitude)
+            # Specify the path to the zip file
+            zip_file_path = None
+            base_directory = r"C:\Users\Manan Kher\OneDrive\Documents\Plane-Crash-Bayesian-Search\Djano_Pygbag_Website\mysite\myapp"
+            files_in_directory = os.listdir(base_directory)
+            matching_files = [filename for filename in files_in_directory if filename.startswith("GEBCO")]
+            if matching_files:
+                zip_filename = matching_files[0]
+                zip_file_path = os.path.join(base_directory, zip_filename)
+
+            # Specify the directory where you want to extract the contents
+            extract_to_directory = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp\\BATHY"
+
+            # Create the extraction directory if it does not exist
+            os.makedirs(extract_to_directory, exist_ok=True)
+        
+            # Extract the zip file
+            extract_zip(zip_file_path, extract_to_directory)
+            zip_folder = os.path.basename(zip_file_path)
+            extracted_folder = zip_folder.split('.')[0]
+
+            print(f"Zip file extracted to: {extract_to_directory}")
+
+            nc_file_path = find_gebco_nc_file(os.path.join(extract_to_directory, extracted_folder))
+
+            li = load_bathymetry_data(nc_file_path)
+
+            if os.path.exists(zip_file_path):
+                os.remove(zip_file_path)
+
 
             # Call function which returns reverse drift dist, uses api calls to current and wind, taking input lat lon time
+            
 
             # Combine all three distributions into final distribution
 

@@ -2,6 +2,14 @@ import requests
 import json
 import math
 import numpy as np
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.keys import Keys
+import time
+import zipfile
+import xarray as xr
+import pickle
 
 def city_lat_lng(city):
     api_url = 'https://api.api-ninjas.com/v1/geocoding?city={}'.format(city)
@@ -79,3 +87,125 @@ def makeGaussian(size, a, b, theta, center=None):
 
     # return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
     return np.exp(-4*np.log(2) * (((x-x0)*math.cos(theta)-(y-y0)*math.sin(theta))**2 / a**2 + ((y-y0)*math.cos(theta)+(x-x0)*math.sin(theta))**2 / b**2))
+
+
+def normalize_longitude(lon):
+    while lon < -180:
+        lon += 360
+    while lon > 180:
+        lon -= 360
+    return lon
+
+def download_bathymetry_data(lat, lng):
+    download_path = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp"
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option("prefs", {
+        "download.default_directory": download_path,
+        "download.prompt_for_download": False,  # Optional, to suppress download prompt
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
+    })
+    # service = Service(executable_path='<path-to-chrome>')
+    web = webdriver.Chrome(options=options)
+    web.get('https://download.gebco.net/')
+    time.sleep(2)
+
+    lng = normalize_longitude(lng)
+    print(lat, lng)
+    print(type(lat), type(lng))
+    north_p = round(lat + 1.5, 4)
+    south_p = round(lat - 1.5, 4)
+    east_p = round(lng + 1.5, 4)
+    west_p = round(lng - 1.5, 4)
+
+    north = web.find_element('xpath','//*[@id="coordinates-card"]/div[2]/div[1]/div[1]/div/input')
+    north.clear()
+    north.send_keys(Keys.CONTROL + "a")
+    north.send_keys(f"{north_p}")
+
+
+    south = web.find_element('xpath','//*[@id="coordinates-card"]/div[2]/div[3]/div[2]/div/input')
+    south.clear()
+    south.send_keys(Keys.CONTROL + "a")
+    south.send_keys(f"{south_p}")
+
+
+    east = web.find_element('xpath','//*[@id="coordinates-card"]/div[2]/div[2]/div[3]/div/input')
+    east.clear()
+    east.send_keys(Keys.CONTROL + "a")
+    east.send_keys(f"{east_p}")
+
+
+    west = web.find_element('xpath','//*[@id="coordinates-card"]/div[2]/div[2]/div[1]/div/input')
+    west.clear()
+    west.send_keys(Keys.CONTROL + "a")
+    west.send_keys(f"{west_p}")
+
+
+    inp = web.find_element('xpath','//*[@id="gridCheck"]')
+    inp.click()
+    time.sleep(1)
+
+
+    add_basket = web.find_element('xpath','//*[@id="sidebar-add-to-basket"]')
+    add_basket.click()
+    time.sleep(2)
+
+    view_basket = web.find_element('xpath','//*[@id="data-selection-card"]/div[3]/button[2]')
+    view_basket.click()
+    time.sleep(2)
+
+    download = web.find_element('xpath','//*[@id="basket-download-button"]')
+    download.click()
+
+
+    files = os.listdir(download_path)
+    gebco_file_exists = any(file.startswith("GEBCO") for file in files)
+
+
+    while not gebco_file_exists:
+        time.sleep(1)
+        files = os.listdir(download_path)
+        gebco_file_exists = any(file.startswith("GEBCO") for file in files)
+
+
+def extract_zip(zip_file_path, extract_to_directory):
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to_directory)
+
+
+def find_gebco_nc_file(directory):
+    # Iterate over the files in the directory
+    for filename in os.listdir(directory):
+        # Check if the filename starts with "gebco" and ends with ".nc"
+        if filename.startswith("gebco") and filename.lower().endswith(".nc"):
+            return os.path.join(directory, filename)  # Return the full path to the matching file
+    return None  # Return None if no matching file is found
+
+
+def load_bathymetry_data(dataset_path):
+    CELL_SIZE = 8
+    ROWS = 96
+    COLUMNS = 96
+
+    data = xr.load_dataset(dataset_path)
+    elevation = data.elevation
+    li = np.array([[0]*COLUMNS for _ in range(ROWS)])
+    mini = float('inf')
+    maxi = float('-inf')
+    for lat in range(96):
+        for lon in range(96):
+            li[95-lat][lon] = (elevation[(lat)*int(data.sizes['lat']/96):(lat+1)*int(data.sizes['lat']/96), (lon)*int(data.sizes['lon']/96):(lon+1)*int(data.sizes['lon']/96)].mean().load())
+            mini = min(mini, li[95-lat][lon])
+            maxi = max(maxi, li[95-lat][lon])
+    li = (li-mini)
+    li = li/(maxi-mini)
+    print(li)
+    with open("C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\bathymetry_data.txt", "wb") as fp:   #Pickling
+        pickle.dump(li, fp)
+    return li
+
+
+
