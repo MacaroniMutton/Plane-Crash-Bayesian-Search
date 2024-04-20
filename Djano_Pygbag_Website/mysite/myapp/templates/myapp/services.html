@@ -48,6 +48,27 @@
                 </form>
 
                 <button id="plotFlightPath">Plot Flight Path</button>
+                <br>
+                <br>
+
+                <form id="LKPform" method="POST">
+                    {% csrf_token %}    
+                    <input type="hidden" name="form_id" value="LKP">
+                    Enter the last known position of the flight:
+                    <label for="latitudeInput">Latitude (-90 to 90):</label>
+                    <input type="number" id="latitudeInput" name="latitude" min="-90" max="90" step="any" required>
+                    <label for="longitudeInput">Longitude (-180 to 180):</label>
+                    <input type="number" id="longitudeInput" name="longitude" min="-180" max="180" step="any" required>
+                    <button type="submit">Submit</button>
+                    <br>
+                    <br>
+                </form>
+
+                <form action="{% url 'myapp:flightInfo' %}">
+                    <button id="proceedButton">Proceed</button>
+                </form>
+                
+
             </div>
         </div>
 
@@ -78,6 +99,14 @@
             var destMarker = null;
             var newMarker = null;
             var flightPath = null;
+            var polylineCoords = null;
+            var joinedCoords = null;
+            var lkpMarker = null;
+            var lkp_latitude = null;
+            var lkp_longitude = null;
+
+            var sourceCoords = null;
+            var destCoords = null;
 
             function normalizeLongitude(lon) {
                 while (lon < -180) {
@@ -91,9 +120,9 @@
     
             map.on('mousemove', function(e) {
                 // Get latitude and longitude values from the mousemove event
-                var latitude = e.latlng.lat.toFixed(2);  // Round latitude to 2 decimal places
-                var longitude = e.latlng.lng.toFixed(2);  // Round longitude to 2 decimal places
-                var normalizeLng = normalizeLongitude(e.latlng.lng).toFixed(2);
+                var latitude = e.latlng.lat.toFixed(7);  // Round latitude to 2 decimal places
+                var longitude = e.latlng.lng.toFixed(7);  // Round longitude to 2 decimal places
+                var normalizeLng = normalizeLongitude(e.latlng.lng).toFixed(7);
 
                 // var normalizeLng = normalizeLongitude(longitude)
 
@@ -157,7 +186,11 @@
                         var longitude = response.longitude;
                         if (sourceMarker) {
                             map.removeLayer(sourceMarker);  // Remove existing source marker
+                        }
+                        if (newMarker) {
                             map.removeLayer(newMarker);
+                        }
+                        if (flightPath) {
                             map.removeLayer(flightPath);
                         }
 
@@ -188,8 +221,12 @@
                         var latitude = response.latitude;
                         var longitude = response.longitude;
                         if (destMarker) {
-                            map.removeLayer(destMarker);  // Remove existing source marker
+                            map.removeLayer(destMarker);  // Remove existing dest marker
+                        }
+                        if (newMarker) {
                             map.removeLayer(newMarker);
+                        }
+                        if (flightPath) {
                             map.removeLayer(flightPath);
                         }
 
@@ -211,8 +248,8 @@
                         map.removeLayer(flightPath);
                     }
 
-                    var sourceCoords = [sourceLatLng.lng, sourceLatLng.lat]; // [longitude, latitude]
-                    var destCoords = [destLatLng.lng, destLatLng.lat];       // [longitude, latitude]
+                    sourceCoords = [sourceLatLng.lng, sourceLatLng.lat]; // [longitude, latitude]
+                    destCoords = [destLatLng.lng, destLatLng.lat];       // [longitude, latitude]
 
                     // Calculate great circle path between start and end coordinates
                     var line = turf.greatCircle(sourceCoords, destCoords, { steps: 100 });
@@ -229,7 +266,7 @@
 
                     } else if (line.geometry.type === 'MultiLineString') {
                         // Convert Turf.js MultiLineString coordinates to Leaflet polyline coordinates
-                        var multiPolylineCoords = line.geometry.coordinates.map(function(coords) {
+                        multiPolylineCoords = line.geometry.coordinates.map(function(coords) {
                             return coords.map(function(coord) {
                                 return [coord[1], coord[0]];  // Swap to [Latitude, Longitude]
                             });
@@ -241,7 +278,7 @@
                                 return [coord[0], coord[1] + 360];
                             });
                             nextCoords.shift();
-                            var joinedCoords = multiPolylineCoords[0].concat(nextCoords);
+                            joinedCoords = multiPolylineCoords[0].concat(nextCoords);
                             console.log(joinedCoords)
 
                             newMarker = L.marker([destCoords[1], destCoords[0]+360]).addTo(map);
@@ -254,7 +291,7 @@
                                 return [coord[0], coord[1] - 360];
                             });
                             nextCoords.shift();
-                            var joinedCoords = multiPolylineCoords[0].concat(nextCoords);
+                            joinedCoords = multiPolylineCoords[0].concat(nextCoords);
                             console.log(joinedCoords)
 
                             newMarker = L.marker([destCoords[1], destCoords[0]-360]).addTo(map);
@@ -273,6 +310,78 @@
             });
 
 
+            $('#LKPform').submit(function(event) {
+                event.preventDefault();
+
+                lkp_latitude = parseFloat($('#latitudeInput').val());
+                lkp_longitude = parseFloat($('#longitudeInput').val());
+
+                if (isNaN(lkp_latitude) || isNaN(lkp_longitude) ||
+                lkp_latitude < -90 || lkp_latitude > 90 ||
+                lkp_longitude < -180 || lkp_longitude > 180) {
+                    alert('Please enter valid latitude (-90 to 90) and longitude (-180 to 180) values.');
+                    return;
+                }
+
+                if(lkpMarker)
+                    map.removeLayer(lkpMarker);
+
+                    if(newMarker) {
+                        if(destCoords[0]>0 && lkp_longitude>0)
+                            lkp_longitude -= 360
+                        if(destCoords[0]<0 && lkp_longitude<0)
+                            lkp_longitude += 360
+                    }
+
+                // Add a marker for the last known position (LKP)
+                lkpMarker = L.marker([lkp_latitude, lkp_longitude]).addTo(map);
+            });
+
+            // Handle Proceed button click
+            $('#proceedButton').click(function() {
+                // Retrieve data from JavaScript variables
+                var sourceLatitude = sourceMarker ? sourceMarker.getLatLng().lat : null;
+                var sourceLongitude = sourceMarker ? sourceMarker.getLatLng().lng : null;
+                var destLatitude = destMarker ? destMarker.getLatLng().lat : null;
+                var destLongitude = destMarker ? destMarker.getLatLng().lng : null;
+                var nextLatitude = newMarker ? newMarker.getLatLng().lat : null;
+                var nextLongitude = newMarker ? newMarker.getLatLng().lng : null;
+                var flightPathCoords = flightPath ? JSON.stringify(flightPath.getLatLngs()) : null;
+                var lkpLatitude = lkp_latitude;
+                var lkpLongitude = lkp_longitude;
+
+                var csrftoken = '{{ csrf_token }}';
+
+                // Construct the data object to send in the AJAX request
+                var data = {
+                    'csrfmiddlewaretoken': csrftoken,
+                    'form_id': 'proceedButton',
+                    'source_latitude': sourceLatitude,
+                    'source_longitude': sourceLongitude,
+                    'dest_latitude': destLatitude,
+                    'dest_longitude': destLongitude,
+                    'next_latitude': nextLatitude,
+                    'next_longitude': nextLongitude,
+                    'flight_path': flightPathCoords,
+                    'lkp_latitude': lkpLatitude,
+                    'lkp_longitude': lkpLongitude
+                };
+
+                // AJAX POST request to send data to Django backend
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'myapp:services' %}",
+                    data: data,
+                    success: function(response) {
+                        // Empty success function - handling redirection in Django view
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error (e.g., display error message)
+                        alert('Error processing request.');
+                        console.error(error);
+                    }
+                });
+            });
 
         });
     </script>

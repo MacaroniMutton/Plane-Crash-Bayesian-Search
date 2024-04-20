@@ -1,0 +1,42 @@
+{% extends 'myapp/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}
+    <title>Services</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
+    {% endblock %}
+</head>
+<body>
+
+    {% block body %}
+
+    <h1>Proceed Information</h1>
+    <p>Source Latitude: {{ source_latitude }}</p>
+    <p>Source Longitude: {{ source_longitude }}</p>
+    <p>Destination Latitude: {{ dest_latitude }}</p>
+    <p>Destination Longitude: {{ dest_longitude }}</p>
+    <p>Next Latitude: {{ next_latitude }}</p>
+    <p>Next Longitude: {{ next_longitude }}</p>
+    <p>Flight Path: {{ flight_path }}</p>
+    <p>Last Known Position (LKP) Latitude: {{ lkp_latitude }}</p>
+    <p>Last Known Position (LKP) Longitude: {{ lkp_longitude }}</p>
+    
+    
+    {% csrf_token %}  {# Include the CSRF token in the HTML template #}
+
+    
+
+
+    {% endblock %}
+    
+</body>
+
+</html>
+

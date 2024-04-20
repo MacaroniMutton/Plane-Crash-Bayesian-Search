@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
-from .city_api import city_lat_lng
+from .utils import city_lat_lng, distance, haversine_distance, calculate_vector_angle
+import json
+from .models import FlightInfo
 
 # Create your views here.
 
@@ -63,6 +65,119 @@ def services(request):
             lat, lng = city_lat_lng(city)
             lat, lng = city_lat_lng(city)
             return JsonResponse({'latitude': lat, 'longitude': lng})
+        
+        elif form_id== "proceedButton":
+            source_latitude = request.POST.get('source_latitude')
+            source_longitude = request.POST.get('source_longitude')
+            dest_latitude = request.POST.get('dest_latitude')
+            dest_longitude = request.POST.get('dest_longitude')
+            next_latitude = request.POST.get('next_latitude')
+            next_longitude = request.POST.get('next_longitude')
+            flight_path = request.POST.get('flight_path')
+            flight_path = json.loads(flight_path)
+            lkp_latitude = request.POST.get('lkp_latitude')
+            lkp_latitude = float(lkp_latitude)
+            lkp_longitude = request.POST.get('lkp_longitude')
+            lkp_longitude = float(lkp_longitude)
+            context = {
+                'source_latitude': source_latitude,
+                'source_longitude': source_longitude,
+                'dest_latitude': dest_latitude,
+                'dest_longitude': dest_longitude,
+                'next_latitude': next_latitude,
+                'next_longitude': next_longitude,
+                'flight_path': flight_path,
+                'lkp_latitude': lkp_latitude,
+                'lkp_longitude': lkp_longitude,
+            }
+
+            myJsonDict = json.dumps(context)
+            FlightInfo.objects.filter(user=request.user).delete()
+            FlightInfo.objects.create(user=request.user, context=myJsonDict)
+
+            distances_from_lkp = [haversine_distance(lkp_latitude, lkp_longitude, point["lat"], point["lng"]) for point in flight_path]
+            print(distances_from_lkp)
+
+            min_distance_index = distances_from_lkp.index(min(distances_from_lkp))
+
+            nearest_point = flight_path[min_distance_index]
+            print(nearest_point)
+
+            closer_point = None
+
+            before_index = min_distance_index - 1
+            after_index = min_distance_index + 1
+
+            # Check if before_index is valid and calculate distance to before_point
+            if before_index >= 0:
+                distance_to_before = distances_from_lkp[before_index]
+                before_point = flight_path[before_index]
+            else:
+                distance_to_before = float('inf')  # Set a large value for invalid index
+                before_point = None
+
+            # Check if after_index is valid and calculate distance to after_point
+            if after_index < len(flight_path):
+                distance_to_after = distances_from_lkp[after_index]
+                after_point = flight_path[after_index]
+            else:
+                distance_to_after = float('inf')  # Set a large value for invalid index
+                after_point = None
+
+            # Compare distances to determine which point is closer
+            if distance_to_before <= distance_to_after:
+                closer_point = before_point
+            else:
+                closer_point = after_point
+
+            if closer_point == before_point:
+                angle = calculate_vector_angle(closer_point, nearest_point)
+            else:
+                angle = calculate_vector_angle(nearest_point, closer_point)
+            print(angle)
+
+            # pass angle to makeGaussian, get the normal dist
+            
+
+            # Call a function which downloads the bathymetry data using Selenium
+
+            # Call function which returns reverse drift dist, uses api calls to current and wind, taking input lat lon time
+
+            # Combine all three distributions into final distribution
+
+            # Write the distribution to a file, which will be read by main.py
+
+            # return redirect('myapp:game')
+
+            # deg game(request): exec_pygbag   return render()
+            # import exec_pygbag from utils.py
     
-    # Render the services.html template with latitude and longitude
     return render(request, "myapp/services.html", {'latitude': lat, 'longitude': lng})
+
+
+def flightInfo(request):
+    flight = FlightInfo.objects.filter(user=request.user)
+    context = json.loads(flight[0].context)
+    return render(request, 'myapp/proceed_info.html', context)
+
+
+# def proceed_view(request):
+#     if request.method == 'POST' and request.is_ajax():
+#         source_latitude = request.POST.get('source_latitude')
+#         source_longitude = request.POST.get('source_longitude')
+#         dest_latitude = request.POST.get('dest_latitude')
+#         dest_longitude = request.POST.get('dest_longitude')
+#         flight_path = request.POST.get('flight_path')
+#         lkp_latitude = request.POST.get('lkp_latitude')
+#         lkp_longitude = request.POST.get('lkp_longitude')
+
+#         # Process the data as needed (e.g., save to database, perform calculations, etc.)
+
+#         # Return a JSON response with a redirect URL
+#         response_data = {
+#             'redirect_url': '/path/to/redirect'  # Specify the URL to redirect to after processing
+#         }
+#         return JsonResponse(response_data)
+
+#     # Handle invalid requests or non-ajax requests
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
