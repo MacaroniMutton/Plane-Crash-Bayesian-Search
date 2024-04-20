@@ -1,6 +1,7 @@
 import requests
 import json
 import math
+import numpy as np
 
 def city_lat_lng(city):
     api_url = 'https://api.api-ninjas.com/v1/geocoding?city={}'.format(city)
@@ -62,3 +63,19 @@ def calculate_vector_angle(point1, point2):
     normalized_angle = (angle_deg + 360) % 360
 
     return normalized_angle
+
+def makeGaussian(size, a, b, theta, center=None):
+
+    x = np.arange(0, size, 1, float)
+    y = x[:,np.newaxis]
+
+    if center is None:
+        x0 = y0 = size // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    theta = (theta)*math.pi/180
+
+    # return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
+    return np.exp(-4*np.log(2) * (((x-x0)*math.cos(theta)-(y-y0)*math.sin(theta))**2 / a**2 + ((y-y0)*math.cos(theta)+(x-x0)*math.sin(theta))**2 / b**2))

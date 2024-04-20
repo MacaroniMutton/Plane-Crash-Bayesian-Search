@@ -30,15 +30,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from math import sin, cos, pi
+import math
 
-def makeGaussian(size, fwhm = 4, center=None):
-    """ Make a square gaussian kernel.
-
-    size is the length of a side of the square
-    fwhm is full-width-half-maximum, which
-    can be thought of as an effective radius.
-    """
+def makeGaussian(size, a, b, theta, center=None):
 
     x = np.arange(0, size, 1, float)
     y = x[:,np.newaxis]
@@ -49,17 +43,13 @@ def makeGaussian(size, fwhm = 4, center=None):
         x0 = center[0]
         y0 = center[1]
 
-    theta = (110)*pi/180
-    a = 30
-    b = 10
-    x0 = 20
-    y0 = 48
+    theta = (theta)*math.pi/180
 
     # return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
-    return np.exp(-4*np.log(2) * (((x-x0)*cos(theta)-(y-y0)*sin(theta))**2 / a**2 + ((y-y0)*cos(theta)+(x-x0)*sin(theta))**2 / b**2) )
+    return np.exp(-4*np.log(2) * (((x-x0)*math.cos(theta)-(y-y0)*math.sin(theta))**2 / a**2 + ((y-y0)*math.cos(theta)+(x-x0)*math.sin(theta))**2 / b**2))
     
 
-distr = makeGaussian(96)
+distr = makeGaussian(96, 7, 20, 90, center=[10, 10])
 distr = distr / distr.sum()
 # for row in distr:
 #     for e in row:

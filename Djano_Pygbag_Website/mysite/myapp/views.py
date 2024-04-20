@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
-from .utils import city_lat_lng, distance, haversine_distance, calculate_vector_angle
+from .utils import city_lat_lng, distance, haversine_distance, calculate_vector_angle, makeGaussian
 import json
 from .models import FlightInfo
 
@@ -137,9 +137,10 @@ def services(request):
             print(angle)
 
             # pass angle to makeGaussian, get the normal dist
-            
+            gauss_distr = makeGaussian(96, 25, 13, angle)
 
             # Call a function which downloads the bathymetry data using Selenium
+            
 
             # Call function which returns reverse drift dist, uses api calls to current and wind, taking input lat lon time
 
