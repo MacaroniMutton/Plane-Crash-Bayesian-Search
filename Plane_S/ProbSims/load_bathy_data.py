@@ -8,7 +8,7 @@ CELL_SIZE = 8
 ROWS = 96
 COLUMNS = 96
 
-data = xr.load_dataset('C:\\Users\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\ProbSims\\gebco_2023_n10.0063_s5.0845_w79.4883_e84.9023.nc')
+data = xr.load_dataset('C:\\Users\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\ProbSims\\gebco_2023_n10.0063_s5.0845_w79.4883_e84.9023.nc')
 
 elevation = data.elevation
 li = np.array([[0]*COLUMNS for _ in range(ROWS)])

@@ -103,7 +103,7 @@ def normalize_longitude(lon):
     return lon
 
 def download_bathymetry_data(lat, lng):
-    download_path = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp"
+    download_path = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp"
 
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -212,7 +212,7 @@ def load_bathymetry_data(dataset_path):
     li = (li-mini)
     li = li/(maxi-mini)
     print(li)
-    with open("C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\bathymetry_data.txt", "wb") as fp:   #Pickling
+    with open("C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\bathymetry_data.txt", "wb") as fp:   #Pickling
         pickle.dump(li, fp)
     return li, lat_lng_li
 
@@ -430,7 +430,7 @@ def plot_reverse_drift_trajectories(recovered_bodies):
     ax[1].grid(True)
 
     # Save the figure
-    plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
+    plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
 
     # Return the density grid as a 96x96 array
     return density_grid[::-1]

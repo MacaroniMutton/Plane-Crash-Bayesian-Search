@@ -234,7 +234,7 @@ def plot_reverse_drift_trajectories(recovered_bodies):
     plt.show()
 
     # Save the figure
-    # plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
+    # plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
 
     # Return the density grid as a 96x96 array
     return density_grid

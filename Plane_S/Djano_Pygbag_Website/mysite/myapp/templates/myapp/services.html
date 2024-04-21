@@ -12,6 +12,8 @@
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
+
+
     {% endblock %}
 </head>
 <body>
@@ -19,7 +21,7 @@
     {% block body %}
 
 
-        <div class="row">
+        <div class="row" style="background-color: #D2E0FB;">
             <div class="col-md-8" style="font-size: .9em;
             color: #00000d;
             text-align: left;
@@ -39,8 +41,9 @@
                 font-weight: 500;">Send Center Coordinates</button>
             </div>
             <div class="col-md-3">
-                <br><br>    
+                <br>  
                 <h1>City Mapper</h1>
+                <br>
                 <form id="sourceCityForm" method="POST">
                     {% csrf_token %}
                     <input style="position: relative;
@@ -49,8 +52,8 @@
                     border-bottom: 2px solid #162938;
                     margin: 30px 0;
                     transition: .5s;" type="hidden" name="form_id" value="sourceCity">
-                    <label for="sourceCity">Source City:</label>
-                    <input type="text" id="sourceCity" placeholder="Enter city name" name="sourceCity"><br>
+                    <label class="form-label" for="sourceCity">Source City:</label>
+                    <input class="form-control" type="text" id="sourceCity" placeholder="Enter city name" name="sourceCity"><br>
                     <button style="width: 100%;
                     height: 45px;
                     background: #162938;
@@ -67,8 +70,8 @@
                 <form id="destCityForm" method="POST">
                     {% csrf_token %}    
                     <input type="hidden" name="form_id" value="destCity">
-                    <label for="destCity">Destination City:</label>
-                    <input type="text" id="destCity" placeholder="Enter city name" name="destCity"><br>
+                    <label class="form-label" for="destCity">Destination City:</label>
+                    <input class="form-control" type="text" id="destCity" placeholder="Enter city name" name="destCity"><br>
                     <button style="width: 100%;
                     height: 45px;
                     background: #162938;
@@ -100,10 +103,11 @@
                     {% csrf_token %}    
                     <input type="hidden" name="form_id" value="LKP">
                     Enter the last known position of the flight:
-                    <label for="latitudeInput">Latitude (-90 to 90):</label>
-                    <input type="number" id="latitudeInput" name="latitude" min="-90" max="90" step="any" required>
-                    <label for="longitudeInput">Longitude (-180 to 180):</label>
-                    <input type="number" id="longitudeInput" name="longitude" min="-180" max="180" step="any" required>
+                    <label class="form-label" for="latitudeInput">Latitude (-90 to 90):</label>
+                    <input class="form-control" type="number" id="latitudeInput" name="latitude" min="-90" max="90" step="any" required>
+                    <label class="form-label" for="longitudeInput">Longitude (-180 to 180):</label>
+                    <input class="form-control" type="number" id="longitudeInput" name="longitude" min="-180" max="180" step="any" required>
+                    <br>
                     <button style="width: 100%;
                     height: 45px;
                     background: #162938;

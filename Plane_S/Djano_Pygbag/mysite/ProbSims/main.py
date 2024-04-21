@@ -11,7 +11,7 @@ import pygame, asyncio
 CELL_SIZE = 8
 ROWS = 96
 COLUMNS = 96
-SEARCHER_COLOR = (255, 0, 0)
+SEARCHER_COLOR = (0, 0, 255)
 
 class Game:
     def __init__(self):

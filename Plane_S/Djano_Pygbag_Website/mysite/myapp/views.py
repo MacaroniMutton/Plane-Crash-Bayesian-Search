@@ -145,7 +145,7 @@ def services(request):
             download_bathymetry_data(lkp_latitude, lkp_longitude)
             # Specify the path to the zip file
             zip_file_path = None
-            base_directory = r"C:\Users\Manan Kher\OneDrive\Documents\Plane-Crash-Bayesian-Search\Djano_Pygbag_Website\mysite\myapp"
+            base_directory = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp"
             files_in_directory = os.listdir(base_directory)
             matching_files = [filename for filename in files_in_directory if filename.startswith("GEBCO")]
             if matching_files:
@@ -153,7 +153,7 @@ def services(request):
                 zip_file_path = os.path.join(base_directory, zip_filename)
 
             # Specify the directory where you want to extract the contents
-            extract_to_directory = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\Plane-Crash-Bayesian-Search\\Djano_Pygbag_Website\\mysite\\myapp\\BATHY"
+            extract_to_directory = "C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\BATHY"
 
             # Create the extraction directory if it does not exist
             os.makedirs(extract_to_directory, exist_ok=True)
