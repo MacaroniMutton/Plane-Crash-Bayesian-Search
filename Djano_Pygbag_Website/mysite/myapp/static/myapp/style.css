@@ -12,7 +12,7 @@ body{
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('/static/myapp/images/background.jpg') no-repeat;
+    background: url('/static/myapp/images/1726.jpg') no-repeat;
     background-size: cover;
     background-position: center;
 }
@@ -81,6 +81,51 @@ header {
 .navigation .btnlogin-popup:hover{
     background: #fff;
     color: #162938;
+}
+
+.content{
+    display: inline-block;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    color:#fff;
+    background-color: #162938;
+    background: transparent;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+    /* border-radius: 5%; */
+}
+
+.content h1{
+    font-size: 3em;
+    margin-top: 50px;
+    letter-spacing: 2px;
+    border-right: 5px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: 
+        typing 3s steps(19),
+        cursor .3s step-end none alternate;
+}
+
+@keyframes cursor {
+    0% { border-color: #00000d; }
+    90% { border-color: #00000d; } /* Keep border color same until near the end */
+    100% { border-color: transparent; width: 0;} /* Hide the cursor at the end */
+}
+
+
+@keyframes typing{
+    from{width:0}
+}
+
+.content p{
+    margin: 40px auto;
+    font-weight: 100;
+    line-height: 25px;
 }
 
 .wrapper{
