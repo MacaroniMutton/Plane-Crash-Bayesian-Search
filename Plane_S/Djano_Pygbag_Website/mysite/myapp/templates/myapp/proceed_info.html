@@ -1,0 +1,161 @@
+{% extends 'myapp/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}
+    <title>Services</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
+    {% endblock %}
+</head>
+<body>
+
+    {% block body %}
+
+    <div class="container mt-4">
+        <h1>Proceed Information</h1>
+        <p>Source Latitude: {{ context.source_latitude }}</p>
+        <p>Source Longitude: {{ context.source_longitude }}</p>
+        {% if context.dest_latitude and context.dest_longitude %}
+            <p>Destination Latitude: {{ context.dest_latitude }}</p>
+            <p>Destination Longitude: {{ context.dest_longitude }}</p>
+        {% endif %}
+        {% if context.next_latitude and context.next_longitude %}
+            <p>Destination Latitude: {{ context.next_latitude }}</p>
+            <p>Destination Longitude: {{ context.next_longitude }}</p>
+        {% endif %}
+        <!-- <p>Flight Path: {{ flight_path }}</p> -->
+        <p>Last Known Position (LKP) Latitude: {{ context.lkp_latitude }}</p>
+        <p>Last Known Position (LKP) Longitude: {{ context.lkp_longitude }}</p>
+
+        <!-- <form id="crashForm" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_id" value="crashTime">
+            <label for="crashTime">Enter Time of Crash:</label>
+            <input type="datetime-local" id="crashTimeInput" name="crashTime" required>
+            <button type="button" id="submitCrashTime">Submit</button>
+        </form> -->
+        <br>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_id" value="recoveredBody">
+            <label for="crashTime">Enter Time of Crash:</label>
+            <input type="datetime-local" id="crashTimeInput" name="crashTime" required>
+            <br>
+            <br>
+            <p>If any body/debris was recovered, enter its details:</p>
+            <label for="recoveryTime">Recovery Time:</label>
+            <input type="datetime-local" id="recoveryTimeInput" name="recoveryTime">
+            <label for="latitudeInput">Latitude (-90 to 90):</label>
+            <input type="number" id="latitudeInput" name="latitude" min="-90" max="90" step="any" required>
+            <label for="longitudeInput">Longitude (-180 to 180):</label>
+            <input type="number" id="longitudeInput" name="longitude" min="-180" max="180" step="any" required>
+            <button type="submit">Submit</button>
+        </form>
+        <br>
+        <br>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div>
+                    <h4>List of Recovered Bodies/Debris</h4>
+                </div>
+
+                <table name="table" id="table" class="table table-striped table-primary">
+                    <tr class="bg-primary text-white">
+                        <th>Recovery Time</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th></th>
+                    </tr>
+                    {% for body in recoveredBodies %}
+                        <tr>
+                            <td>{{ body.recoveryTime }}</td>
+                            <td>{{ body.latitude }}</td>
+                            <td>{{ body.longitude }}</td>
+                            <td>
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_id" value="deleteBody">
+                                    <input type="hidden" name="body_id" value="{{ body.id }}">
+                                    <button class="btn btn-danger" type="submit">X</a>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% if recoveredBodies %}
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_id" value="plotRD">
+                    <button type="submit">Compute Reverse Drift</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        <br>
+    </div>
+
+    
+    
+    
+    {% csrf_token %}  {# Include the CSRF token in the HTML template #}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script>
+        $(document).ready(function() {
+            $('#submitCrashTime').click(function() {
+                var crashTime = $('#crashTimeInput').val();
+    
+                // Make sure crashTime is not empty
+                if (crashTime) {
+                    // Make an AJAX POST request
+                    $.ajax({
+                        url: "{% url 'myapp:flightInfo' %}",
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        data: {
+                            'form_id': 'crashTime',
+                            'crashTime': crashTime
+                        },
+                        success: function(response) {
+                            // Handle success response from the server
+                            console.log(response);
+                        },
+                        error: function(error) {
+                            // Handle errors
+                            console.error('Error sending data to server');
+                        }
+                    });
+                } else {
+                    console.error('Crash time is empty');
+                }
+            });
+        });
+    </script> -->
+
+    
+
+
+    {% endblock %}
+    
+</body>
+
+</html>
+
