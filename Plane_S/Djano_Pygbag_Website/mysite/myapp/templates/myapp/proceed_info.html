@@ -17,7 +17,7 @@
 
     {% block body %}
 
-    <div class="container mt-4">
+    <div class="container my-4">
         <h1>Proceed Information</h1>
         <p>Source Latitude: {{ context.source_latitude }}</p>
         <p>Source Longitude: {{ context.source_longitude }}</p>
@@ -106,7 +106,15 @@
             </div>
         </div>
         <br>
+        <div class="row">
+            <div class="col-md-6">
+                <a class="btn btn-primary" href="{% url 'myapp:game' %}">Proceed to Simulation</a>
+            </div>
+        </div>
         <br>
+        
+                
+
     </div>
 
     

@@ -121,10 +121,10 @@ def download_bathymetry_data(lat, lng):
     lng = normalize_longitude(lng)
     print(lat, lng)
     print(type(lat), type(lng))
-    north_p = round(lat + 1.5, 4)
-    south_p = round(lat - 1.5, 4)
-    east_p = round(lng + 1.5, 4)
-    west_p = round(lng - 1.5, 4)
+    north_p = round(lat + 0.75, 4)
+    south_p = round(lat - 0.75, 4)
+    east_p = round(lng + 0.75, 4)
+    west_p = round(lng - 0.75, 4)
 
     north = web.find_element('xpath','//*[@id="coordinates-card"]/div[2]/div[1]/div[1]/div/input')
     north.clear()
@@ -157,7 +157,7 @@ def download_bathymetry_data(lat, lng):
 
     add_basket = web.find_element('xpath','//*[@id="sidebar-add-to-basket"]')
     add_basket.click()
-    time.sleep(2)
+    time.sleep(10)
 
     view_basket = web.find_element('xpath','//*[@id="data-selection-card"]/div[3]/button[2]')
     view_basket.click()

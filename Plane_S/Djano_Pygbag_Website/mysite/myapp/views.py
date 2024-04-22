@@ -1,4 +1,6 @@
 from datetime import datetime
+import shutil
+import subprocess
 from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.contrib.auth.models import User
@@ -6,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
 from .utils import *
-import json
+import json, pickle
 from .models import FlightInfo, RecoveredBody
 import os
 
@@ -169,6 +171,11 @@ def services(request):
 
             li, lat_lng_li = load_bathymetry_data(nc_file_path)
 
+            distributions_data = {"lkp_latitude": lkp_latitude, "lkp_longitude": lkp_longitude, "lat_lng_li": lat_lng_li, "gaussian": gauss_distr, "bathy_li": li}
+            with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'wb') as fp:
+                pickle.dump(distributions_data, fp)
+            fp.close()
+
             if os.path.exists(zip_file_path):
                 os.remove(zip_file_path)
 
@@ -212,8 +219,15 @@ def flightInfo(request):
             body = RecoveredBody.objects.get(id=body_id)
             body.delete()
         elif form_id=="plotRD":
+            with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'rb') as fp:
+                distributions_data = pickle.load(fp)
+
             rd_dist = plot_reverse_drift_trajectories(recoveredBodies)
-            print(rd_dist)
+            distributions_data['rd_dist'] = rd_dist
+
+            with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'wb') as fp:
+                pickle.dump(distributions_data, fp)
+
             return redirect('myapp:rd')
 
     return render(request, 'myapp/proceed_info.html', {"context": context, "recoveredBodies": recoveredBodies})
@@ -243,3 +257,15 @@ def flightInfo(request):
 
 def rd_view(request):
     return render(request, 'myapp/rd.html')
+
+
+def exec_pygbag():
+    subprocess.call('pygbag --build ProbSims', shell=True, cwd='C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite')
+    src = 'C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\build\\web'
+    dst = 'C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp'
+    filename = 'probsims.apk'
+    shutil.move(os.path.join(src, filename), os.path.join(dst, filename))
+
+def game(request):
+    exec_pygbag()
+    return render(request, 'myapp/game.html')
