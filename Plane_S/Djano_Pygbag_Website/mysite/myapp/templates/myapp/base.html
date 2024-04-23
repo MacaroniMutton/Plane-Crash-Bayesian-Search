@@ -28,7 +28,7 @@
             <div class="navbar-nav">
               <a class="nav-item nav-link mx-2" href="{% url 'myapp:index' %}">Home</a>
               <a class="nav-item nav-link mx-2" href="{% url 'myapp:index' %}">About</a>
-              <a class="nav-item nav-link mx-2" href="{% url 'myapp:index' %}">Contact</a>
+              <a class="nav-item nav-link mx-2" href="{% url 'myapp:contact' %}">Contact</a>
               
               {% if user.is_authenticated %}
                 <a class="nav-item nav-link mx-2" href="{% url 'myapp:services' %}">Services</a>

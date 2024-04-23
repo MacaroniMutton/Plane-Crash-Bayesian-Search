@@ -282,3 +282,6 @@ def exec_pygbag():
 def game(request):
     exec_pygbag()
     return render(request, 'myapp/game.html')
+
+def contact(request):
+    return render(request, 'myapp/contact.html')
