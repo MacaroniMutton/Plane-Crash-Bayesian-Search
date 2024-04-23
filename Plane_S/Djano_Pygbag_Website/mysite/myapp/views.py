@@ -169,6 +169,18 @@ def services(request):
 
             nc_file_path = find_gebco_nc_file(os.path.join(extract_to_directory, extracted_folder))
 
+            relief_file_path = find_shaded_relief(os.path.join(extract_to_directory, extracted_folder))
+            relief_filename = os.path.basename(relief_file_path)
+            print(relief_filename)
+
+            src = os.path.join(extract_to_directory, extracted_folder)
+            dst = 'C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\images'
+            filename = relief_filename
+            files_in_images = os.listdir(dst)
+            for file in files_in_images:
+                os.remove(os.path.join(dst, file))
+            shutil.move(os.path.join(src, filename), os.path.join(dst, filename))
+
             li, lat_lng_li = load_bathymetry_data(nc_file_path)
 
             distributions_data = {"lkp_latitude": lkp_latitude, "lkp_longitude": lkp_longitude, "lat_lng_li": lat_lng_li, "gaussian": gauss_distr, "bathy_li": li}
@@ -219,6 +231,7 @@ def flightInfo(request):
             body = RecoveredBody.objects.get(id=body_id)
             body.delete()
         elif form_id=="plotRD":
+            recoveredBodies = RecoveredBody.objects.filter(user=request.user)
             with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'rb') as fp:
                 distributions_data = pickle.load(fp)
 

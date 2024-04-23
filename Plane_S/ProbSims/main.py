@@ -35,11 +35,23 @@ class Game:
         # li = (li-mini)
         # li = li/(maxi-mini)
         # print(li[-1])
-        with open("test.txt", "rb") as fp:   # Unpickling
-            li = pickle.load(fp)
+        # with open("test.txt", "rb") as fp:   # Unpickling
+        #     li = pickle.load(fp)
 
-        self.tilemap = Tilemap(self, ROWS, COLUMNS, CELL_SIZE, self.cmap, li)
-        self.searcher = Searcher(self, SEARCHER_COLOR, CELL_SIZE)
+        with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'rb') as fp:
+                distributions_data = pickle.load(fp)
+        
+        bathy_li = distributions_data['bathy_li']
+        gauss_distr = distributions_data['gaussian']
+        lat_lng_li = distributions_data['lat_lng_li']
+        print(lat_lng_li.shape)
+
+        self.plane_coords = [30, 40]
+        self.tilemap = Tilemap(self, ROWS, COLUMNS, CELL_SIZE, self.cmap, bathy_li, gauss_distr, lat_lng_li, self.plane_coords)
+        self.searcher = Searcher(self, SEARCHER_COLOR, CELL_SIZE, [0,0])
+        self.surface = pygame.Surface((CELL_SIZE*COLUMNS, CELL_SIZE*ROWS), pygame.SRCALPHA)
+        self.background_image = pygame.image.load('C:\\Users\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\images\\gebco_2023_n-21.3397_s-22.8397_w53.3942_e54.8942_relief.png').convert_alpha()
+        self.background_image = pygame.transform.scale(self.background_image, (CELL_SIZE*COLUMNS, CELL_SIZE*ROWS))
 
     async def run(self):
         while True:
@@ -71,13 +83,15 @@ class Game:
             # self.tilemap.update(self.searcher)
             # self.searcher.update(ROWS, COLUMNS)
 
-            self.screen.fill((255,255,255))
-            self.tilemap.render(self.screen)
-            self.searcher.render(self.screen)
+            self.screen.blit(self.surface, (0,0))
+            self.surface.blit(self.background_image, (0,0))
+            self.tilemap.render(self.surface)
+            self.searcher.render(self.surface)
+            path_to_max_prob = self.searcher.search_highest_probability_square()
             searcher_coords = self.searcher.coords.copy()
-            self.searcher.update(ROWS, COLUMNS)
+            self.searcher.update(path_to_max_prob)
             new_searcher_coords = self.searcher.coords.copy()
-            if searcher_coords!=new_searcher_coords:
+            if searcher_coords!=new_searcher_coords or len(path_to_max_prob)==1:
                 self.tilemap.update(self.searcher)
 
             pygame.display.update()

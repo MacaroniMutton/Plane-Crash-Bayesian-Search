@@ -63,7 +63,7 @@ async def custom_site():
     import embed
 
 
-    platform.document.body.style.background = "#7f7f7f"
+    platform.document.body.style.background = "#D2E0FB"
 
     import pygame
 
@@ -76,7 +76,7 @@ async def custom_site():
 
     screen = pygame.display.set_mode([ux(.100),uy(.100)], pygame.SRCALPHA, 32)
     screen.set_colorkey( (0,0,0,0), pygame.RLEACCEL )
-    screen.fill( (0,0,0,0) )
+    screen.fill( (30, 3, 66) )
 
     compose()
 
@@ -120,7 +120,7 @@ async def custom_site():
         slot = ux(.060)/ total # 60%
 
         pygame.draw.rect(screen,(10,10,10),( marginx-ux(10), marginy-uy(10), (total*slot)+ux(20), uy(110) ) )
-        pygame.draw.rect(screen,(0,255,0), ( marginx, marginy, track.pos*slot, uy(90)) )
+        pygame.draw.rect(screen,(150, 239, 255), ( marginx, marginy, track.pos*slot, uy(90)) )
 
     # wait until zip mount + overlayfs is complete
     while not track.ready:
@@ -170,7 +170,7 @@ async def custom_site():
 
         # now make a prompt
         fnt = pygame.sysfont.SysFont("freesans",  uy(80) )
-        prompt = fnt.render("Clickkk to start !", True, "blue")
+        prompt = fnt.render("Click to start !", True, "blue")
         pg_bar(track.len)
         screen.blit(prompt, ( marginx+ ux(80), marginy - uy(10) ) )
         compose()
@@ -357,11 +357,8 @@ config = {
     </div>
 
 
-    <canvas class="emscripten" id="canvas"
-width="1px"
-height="1px"
-    oncontextmenu="event.preventDefault()" tabindex=1>
-    </canvas>
+    <canvas class="emscripten" id="canvas" width="1024px" height="600px" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+    <div>{{ coordinates }}</div>
 
     <div id=html></div>
 
@@ -425,6 +422,8 @@ frameborder="1"
     async function custom_onload(debug_hidden) {
         // this is called before anything python is loaded
         // make your js customization here
+
+        
         console.log(__FILE__, "custom_onload")
 
         pyconsole.hidden = debug_hidden

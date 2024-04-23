@@ -32,6 +32,10 @@ class Game:
         self.plane_coords = [30, 40]
         self.tilemap = Tilemap(self, ROWS, COLUMNS, CELL_SIZE, self.cmap, bathy_li, gauss_distr, lat_lng_li, self.plane_coords)
         self.searcher = Searcher(self, SEARCHER_COLOR, CELL_SIZE, [0,0])
+        self.surface = pygame.Surface((CELL_SIZE*COLUMNS, CELL_SIZE*ROWS), pygame.SRCALPHA)
+        if len(os.listdir('images'))>0:
+            self.background_image = pygame.image.load(os.path.join('images', os.listdir('images')[0])).convert_alpha()
+            self.background_image = pygame.transform.scale(self.background_image, (CELL_SIZE*COLUMNS, CELL_SIZE*ROWS))
 
     async def run(self):
         while True:
@@ -63,30 +67,26 @@ class Game:
             # self.tilemap.update(self.searcher)
             # self.searcher.update(ROWS, COLUMNS)
 
-            self.screen.fill((255,255,255))
-            self.tilemap.render(self.screen)
-            self.searcher.render(self.screen)
+            self.screen.blit(self.surface, (0,0))
+            self.surface.blit(self.background_image, (0,0))
+            self.tilemap.render(self.surface)
+            self.searcher.render(self.surface)
             path_to_max_prob = self.searcher.search_highest_probability_square()
             searcher_coords = self.searcher.coords.copy()
+            str_searcher_coords = f"{searcher_coords[0]};{searcher_coords[1]}"
             self.searcher.update(path_to_max_prob)
             new_searcher_coords = self.searcher.coords.copy()
-            if searcher_coords!=new_searcher_coords:
+            if searcher_coords!=new_searcher_coords or len(path_to_max_prob)==1:
                 self.tilemap.update(self.searcher)
                 try:
-                    filepath = os.path.abspath("report.pkl")
-                    print(filepath)
-                    if os.access("report.pkl", os.R_OK):
-                        print("readable")
-                    if os.access("report.pkl", os.W_OK):
-                        print("writable")
-                    with open("report.pkl", "wb") as fp:
-                        pickle.dump(self.searcher.coords, fp)
-                        fp.flush()
-                        print(f"Searcher coords : {self.searcher.coords}")
-                        print("Successfully dumped coordinates to report.pkl")
 
-                    with open("report.pkl", "rb") as fp:
-                        print(pickle.load(fp))
+                    with open("report.txt", "a") as fp:
+                        fp.write(f"Search in the range of latitudes {self.tilemap.grid[str_searcher_coords]['lat_range'][0]}-{self.tilemap.grid[str_searcher_coords]['lat_range'][1]} and longitudes {self.tilemap.grid[str_searcher_coords]['lng_range'][0]}-{self.tilemap.grid[str_searcher_coords]['lng_range'][1]} having probability = {self.tilemap.grid[str_searcher_coords]['tot_prob']}\n")
+                        print(f"Searcher coords : {self.searcher.coords}")
+                        print("Successfully dumped coordinates to report.txt")
+
+                    with open("report.txt", "r") as fp:
+                        print(fp.readlines())
 
                 except Exception as e:
                     print(f"Error while dumping coordinates to report.txt: {e}")

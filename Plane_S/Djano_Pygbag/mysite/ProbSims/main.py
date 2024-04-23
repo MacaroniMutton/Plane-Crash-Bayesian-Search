@@ -1,3 +1,4 @@
+import json
 import pickle
 import numpy as np
 # import matplotlib.colormaps
@@ -11,7 +12,7 @@ import pygame, asyncio
 CELL_SIZE = 8
 ROWS = 96
 COLUMNS = 96
-SEARCHER_COLOR = (0, 0, 255)
+SEARCHER_COLOR = (255, 0, 0)
 
 class Game:
     def __init__(self):
@@ -79,10 +80,22 @@ class Game:
             new_searcher_coords = self.searcher.coords.copy()
             if searcher_coords!=new_searcher_coords:
                 self.tilemap.update(self.searcher)
+                try:
+                    with open("C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag\\mysite\\ProbSims\\report.txt", "wb") as fp:
+                        pickle.dump(self.searcher.coords, fp)
+                        print("Successfully dumped coordinates to report.txt")
+                        fp.close()
+                    # with open("C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag\\mysite\\ProbSims\\report.txt", "rb") as fp:
+                    #     print(pickle.load(fp))
+                    # fp.close()
+                except Exception as e:
+                    print(f"Error while dumping coordinates to report.txt: {e}")
 
             pygame.display.update()
             self.clock.tick(10)
             await asyncio.sleep(0)
 
 
-asyncio.run(Game().run())
+if __name__ == "__main__":
+    game = Game()
+    asyncio.run(game.run())

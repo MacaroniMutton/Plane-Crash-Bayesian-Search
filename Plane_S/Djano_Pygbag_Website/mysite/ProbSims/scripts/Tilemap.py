@@ -75,4 +75,4 @@ class Tilemap:
 
     def render(self, screen):
         for cell in self.grid.values():
-             pygame.draw.rect(screen, cell["color"], cell["rect"])
+             pygame.draw.rect(screen, (cell["color"][0], cell["color"][1], cell["color"][2], 120), cell["rect"])

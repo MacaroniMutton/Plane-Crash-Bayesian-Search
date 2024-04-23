@@ -26,7 +26,10 @@ class Searcher:
     #     self.player_rect.y = self.coords[1]*self.size+
     
     def update(self, path_to_max_prob):
-        self.coords = list(path_to_max_prob[1])
+        if len(path_to_max_prob)>0:
+            self.coords = list(path_to_max_prob[1])
+        else:
+            self.coords = list(path_to_max_prob[0])
         self.player_rect.x = self.coords[0]*self.size+1
         self.player_rect.y = self.coords[1]*self.size+1
 
@@ -76,7 +79,7 @@ class Searcher:
         return None
 
     def get_neighbors(self, node):
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, 1), (1, -1)]
         neighbors = [(node[0] + dx, node[1] + dy) for dx, dy in directions]
         return [n for n in neighbors if 0 <= n[0] < self.grid_size and 0 <= n[1] < self.grid_size]
     

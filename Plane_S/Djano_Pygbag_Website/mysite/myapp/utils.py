@@ -154,10 +154,13 @@ def download_bathymetry_data(lat, lng):
     inp.click()
     time.sleep(1)
 
+    shaded_relief = web.find_element('xpath','/html/body/div[1]/div[2]/div/form/div[3]/div[2]/table/tbody/tr[7]/td[3]/div/div/input')
+    shaded_relief.click()
+    time.sleep(1)
 
     add_basket = web.find_element('xpath','//*[@id="sidebar-add-to-basket"]')
     add_basket.click()
-    time.sleep(10)
+    time.sleep(2)
 
     view_basket = web.find_element('xpath','//*[@id="data-selection-card"]/div[3]/button[2]')
     view_basket.click()
@@ -187,6 +190,14 @@ def find_gebco_nc_file(directory):
     for filename in os.listdir(directory):
         # Check if the filename starts with "gebco" and ends with ".nc"
         if filename.startswith("gebco") and filename.lower().endswith(".nc"):
+            return os.path.join(directory, filename)  # Return the full path to the matching file
+    return None  # Return None if no matching file is found
+
+def find_shaded_relief(directory):
+    # Iterate over the files in the directory
+    for filename in os.listdir(directory):
+        # Check if the filename starts with "gebco" and ends with ".nc"
+        if filename.startswith("gebco") and filename.lower().endswith(".png"):
             return os.path.join(directory, filename)  # Return the full path to the matching file
     return None  # Return None if no matching file is found
 
@@ -232,8 +243,8 @@ def query_meteomatics_api(latitude, longitude, start_time, end_time, interval='P
         dict: JSON response from the Meteomatics API.
     """
     # Define your Meteomatics API credentials
-    username = "spit_mutton_macaroni"
-    password = "TQ4mj36VFa"
+    username = "spit_khadhav_manushka"
+    password = "r8W5D5yTbG"
 
     # Define additional parameters for the API query
     parameters = "ocean_current_direction:d,ocean_current_speed_2m:kmh,wind_dir_FL10:d,wind_speed_FL10:kmh"

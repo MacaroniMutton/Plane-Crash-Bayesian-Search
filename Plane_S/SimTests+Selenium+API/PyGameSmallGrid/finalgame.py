@@ -41,7 +41,7 @@ class Game:
         ])
 
         self.tilemap = Tilemap(self, ROWS, COLUMNS, CELL_SIZE, self.cmap, grid2)
-        self.searcher = Searcher(self, SEARCHER_COLOR, CELL_SIZE)
+        self.searcher = Searcher(self, SEARCHER_COLOR, CELL_SIZE, [0,0])
 
     def run(self):
         while True:
@@ -71,13 +71,14 @@ class Game:
             self.screen.fill((255,255,255))
             self.tilemap.render(self.screen)
             self.searcher.render(self.screen)
+            path_to_max_prob = self.searcher.search_highest_probability_square()
             searcher_coords = self.searcher.coords.copy()
-            self.searcher.update(ROWS, COLUMNS)
+            self.searcher.update(path_to_max_prob)
             new_searcher_coords = self.searcher.coords.copy()
-            if searcher_coords!=new_searcher_coords:
+            if searcher_coords!=new_searcher_coords or len(path_to_max_prob)==1:
                 self.tilemap.update(self.searcher)
 
             pygame.display.update()
-            self.clock.tick(9)
+            self.clock.tick(1)
 
 Game().run()
