@@ -16,8 +16,8 @@ def query_meteomatics_api(latitude, longitude, start_time, end_time, interval='P
         dict: JSON response from the Meteomatics API.
     """
     # Define your Meteomatics API credentials
-    username = "spit_mutton_macaroni"
-    password = "TQ4mj36VFa"
+    username = "spit_khadhav_manushka"
+    password = "r8W5D5yTbG"
 
     # Define additional parameters for the API query
     parameters = "ocean_current_direction:d,ocean_current_speed_2m:kmh,wind_dir_FL10:d,wind_speed_FL10:kmh"
@@ -42,10 +42,10 @@ def query_meteomatics_api(latitude, longitude, start_time, end_time, interval='P
         return None
 
 # Example usage:
-latitude = 24.7761086
-longitude = 134.755
-start_time = "2024-04-20T07:45:00Z"
-end_time = "2024-04-21T07:45:00Z"
+latitude = 2.9971
+longitude = 84.0938
+start_time = "2024-04-23T07:00:00Z"
+end_time = "2024-04-24T07:00:00Z"
 interval = "PT1H"
 
 # Query Meteomatics API

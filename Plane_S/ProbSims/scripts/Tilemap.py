@@ -4,14 +4,14 @@ import pygame
 
 
 class Tilemap:
-    def __init__(self, game, rows, columns, cell_size, cmap, ocean_depth_np, gauss_distr, lat_lng_li, plane_coords):
+    def __init__(self, game, rows, columns, cell_size, cmap, ocean_depth_np, grid1, lat_lng_li, plane_coords):
         self.game = game
         self.rows = rows
         self.columns = columns
         self.cell_size = cell_size
         self.cmap = cmap
         self.elevation = ocean_depth_np
-        self.gauss_distr = gauss_distr
+        self.grid_there = grid1
         self.lat_lng_li = lat_lng_li
         self.plane_coords = plane_coords
         self.grid1 = None
@@ -22,8 +22,8 @@ class Tilemap:
 
 
     def create_base_grid(self):
-        self.grid1 = self.gauss_distr
-        self.grid1 = self.grid1 / self.grid1.sum()
+        self.grid1 = self.grid_there
+        # self.grid1 = self.grid1 / self.grid1.sum()
         self.grid2 = self.elevation
         for i in range(self.rows):
             for j in range(self.columns):

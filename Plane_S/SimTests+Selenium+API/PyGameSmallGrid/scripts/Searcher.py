@@ -26,7 +26,6 @@ class Searcher:
     #     self.player_rect.y = self.coords[1]*self.size+1
 
     def update(self, path_to_max_prob):
-        print(path_to_max_prob)
         if len(path_to_max_prob)>1:
             self.coords = list(path_to_max_prob[1])
         else:

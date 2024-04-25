@@ -11,6 +11,10 @@ from .utils import *
 import json, pickle
 from .models import FlightInfo, RecoveredBody
 import os
+import pandas as pd
+from django.http import HttpResponse
+from .ProbSimsReportGen.main import Game
+
 
 # Create your views here.
 
@@ -143,6 +147,9 @@ def services(request):
             # pass angle to makeGaussian, get the normal dist
             gauss_distr = makeGaussian(96, 25, 13, angle)
 
+            # Uniform Distribution circular
+            circular_dist = makeCircularUniform(96, 30)
+
             # Call a function which downloads the bathymetry data using Selenium
             download_bathymetry_data(lkp_latitude, lkp_longitude)
             # Specify the path to the zip file
@@ -183,7 +190,7 @@ def services(request):
 
             li, lat_lng_li = load_bathymetry_data(nc_file_path)
 
-            distributions_data = {"lkp_latitude": lkp_latitude, "lkp_longitude": lkp_longitude, "lat_lng_li": lat_lng_li, "gaussian": gauss_distr, "bathy_li": li}
+            distributions_data = {"lkp_latitude": lkp_latitude, "lkp_longitude": lkp_longitude, "lat_lng_li": lat_lng_li, "gaussian": gauss_distr, "circular_uniform": circular_dist, "bathy_li": li}
             with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'wb') as fp:
                 pickle.dump(distributions_data, fp)
             fp.close()
@@ -235,8 +242,9 @@ def flightInfo(request):
             with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'rb') as fp:
                 distributions_data = pickle.load(fp)
 
-            rd_dist = plot_reverse_drift_trajectories(recoveredBodies)
+            rd_dist, shrinked_rd_dist = plot_reverse_drift_trajectories(recoveredBodies, distributions_data['lat_lng_li'])
             distributions_data['rd_dist'] = rd_dist
+            distributions_data['shrinked_rd_dist'] = shrinked_rd_dist
 
             with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'wb') as fp:
                 pickle.dump(distributions_data, fp)
@@ -285,3 +293,17 @@ def game(request):
 
 def contact(request):
     return render(request, 'myapp/contact.html')
+
+def download_dataframe_as_csv(request):
+    # Create a sample pandas DataFrame (replace this with your DataFrame creation logic)
+    game = Game()
+    df = game.run()
+
+    # Create a response object
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="dataframe.csv"'
+
+    # Write DataFrame to CSV file and add to response
+    df.to_csv(path_or_buf=response, index=False)
+
+    return response

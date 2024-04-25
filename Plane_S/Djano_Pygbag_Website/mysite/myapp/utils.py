@@ -94,6 +94,23 @@ def makeGaussian(size, a, b, theta, center=None):
     # return np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
     return np.exp(-4*np.log(2) * (((x-x0)*math.cos(theta)-(y-y0)*math.sin(theta))**2 / a**2 + ((y-y0)*math.cos(theta)+(x-x0)*math.sin(theta))**2 / b**2))
 
+def makeCircularUniform(size, radius, center=None):
+    if center is None:
+        x0 = y0 = size // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    x = np.arange(0, size, 1, float)
+    y = x[:, np.newaxis]
+
+    # Calculate distances from the center
+    distances = np.sqrt((x - x0) ** 2 + (y - y0) ** 2)
+
+    # Create circular mask
+    circular_mask = (distances <= radius).astype(float)
+
+    return circular_mask
 
 def normalize_longitude(lon):
     while lon < -180:
@@ -215,8 +232,8 @@ def load_bathymetry_data(dataset_path):
     maxi = float('-inf')
     for lat in range(96):
         for lon in range(96):
-            lat_lng_li[95-lat][lon] = [[data.lat[(lat)*int(data.sizes['lat']/96)], data.lat[(lat+1)*int(data.sizes['lat']/96)]], [data.lon[(lon)*int(data.sizes['lon']/96)], data.lon[(lon+1)*int(data.sizes['lon']/96)]]]
-            li[95-lat][lon] = (elevation[(lat)*int(data.sizes['lat']/96):(lat+1)*int(data.sizes['lat']/96), (lon)*int(data.sizes['lon']/96):(lon+1)*int(data.sizes['lon']/96)].mean().load())
+            lat_lng_li[95-lat][lon] = [[data.lat[int(lat*(data.sizes['lat']/96))], data.lat[int((lat+1)*(data.sizes['lat']/96))-1]], [data.lon[int(lon*(data.sizes['lon']/96))], data.lon[int((lon+1)*(data.sizes['lon']/96))-1]]]
+            li[95-lat][lon] = (elevation[int(lat*(data.sizes['lat']/96)):int((lat+1)*(data.sizes['lat']/96))-1, int(lon*(data.sizes['lon']/96)):int((lon+1)*(data.sizes['lon']/96))-1].mean().load())
             mini = min(mini, li[95-lat][lon])
             maxi = max(maxi, li[95-lat][lon])
     lat_lng_li = np.array(lat_lng_li)
@@ -374,7 +391,17 @@ def simulate_reverse_drift(recovered_body):
     
     return np.array(trajectory)
 
-def plot_reverse_drift_trajectories(recovered_bodies):
+def find_cell(lat, lon, lat_lng_li):
+    for i in range(len(lat_lng_li)):
+        for j in range(len(lat_lng_li[0])):
+            lat_range = lat_lng_li[i][j][0]
+            lon_range = lat_lng_li[i][j][1]
+            if lat_range[0] <= lat <= lat_range[1] and lon_range[0] <= lon <= lon_range[1]:
+                return [i, j]
+    return None
+
+
+def plot_reverse_drift_trajectories(recovered_bodies, lat_lng_li):
     rd_trajectories = []
 
     for recovered_body in recovered_bodies:
@@ -412,13 +439,24 @@ def plot_reverse_drift_trajectories(recovered_bodies):
     # Convert positions to numpy array
     all_positions = np.array(all_positions)
 
+    recovery_endpoints = [trajectory[-1] for trajectory in rd_trajectories]
+    recovery_endpoints = np.array(recovery_endpoints)
+    endpoint_weight=10.0
+
     # Compute KDE for RD distribution with variable bandwidth
     distances = np.array(distances)
     max_distance = np.max(distances)
-    bandwidths = 0.05 + 0.2 * (distances / max_distance)  # Dynamic bandwidth based on distance
+    bandwidths = 0.02 + 0.2 * (distances / max_distance)  # Dynamic bandwidth based on distance
 
     kde = KernelDensity(bandwidth=bandwidths.mean())  # Use mean bandwidth initially
-    kde.fit(all_positions)  # Fit KDE model to all positions
+    
+    # Weighting positions based on proximity to recovery endpoints
+    weights = np.ones(len(all_positions))
+    for endpoint in recovery_endpoints:
+        distances = np.linalg.norm(all_positions - endpoint, axis=1)
+        weights += endpoint_weight * np.exp(-distances**2 / (2 * bandwidths.mean()**2))
+
+    kde.fit(all_positions, sample_weight=weights)  # Fit KDE model to all positions
 
     # Generate grid points for visualization
     lon_grid, lat_grid = np.meshgrid(np.linspace(np.min(all_positions[:, 1]), np.max(all_positions[:, 1]), num=96),
@@ -440,9 +478,35 @@ def plot_reverse_drift_trajectories(recovered_bodies):
     ax[1].legend()
     ax[1].grid(True)
 
+    bottom_left = [np.min(all_positions[:, 0]), np.min(all_positions[:, 1])]
+    top_left = [np.max(all_positions[:, 0]), np.min(all_positions[:, 1])]
+    top_right = [np.max(all_positions[:, 0]), np.max(all_positions[:, 1])]
+    bottom_right = [np.min(all_positions[:, 0]), np.max(all_positions[:, 1])]
+
+    bottom_left = find_cell(bottom_left[0], bottom_left[1], lat_lng_li)
+    top_left = find_cell(top_left[0], top_left[1], lat_lng_li)
+    top_right = find_cell(top_right[0], top_right[1], lat_lng_li)
+    bottom_right = find_cell(bottom_right[0], bottom_right[1], lat_lng_li)
+
+
+    lon_grid, lat_grid = np.meshgrid(np.linspace(np.min(all_positions[:, 1]), np.max(all_positions[:, 1]), num=top_right[1]-top_left[1]),
+                                     np.linspace(np.min(all_positions[:, 0]), np.max(all_positions[:, 0]), num=bottom_right[0]-top_right[0]))
+    points_grid = np.vstack([lat_grid.ravel(), lon_grid.ravel()]).T
+
+    # Evaluate KDE model on grid points
+    log_density_grid = kde.score_samples(points_grid)
+    shrinked_grid = np.exp(log_density_grid).reshape(lon_grid.shape)
+    mini = shrinked_grid.min()
+    maxi = shrinked_grid.max()
+    shrinked_grid = shrinked_grid-mini
+    shrinked_grid = shrinked_grid/(maxi-mini)
+    
+    shrinked_rd_grid = np.zeros((96,96))
+    shrinked_rd_grid[top_right[0]:bottom_right[0], top_left[1]:top_right[1]] = shrinked_grid
+
     # Save the figure
     plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
 
     # Return the density grid as a 96x96 array
-    return density_grid[::-1]
+    return density_grid[::-1], shrinked_rd_grid[::-1]
 

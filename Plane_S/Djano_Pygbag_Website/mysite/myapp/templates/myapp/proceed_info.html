@@ -146,21 +146,18 @@
                 </table>
             </div>
         </div>
+        <br><br>
         <div class="row">
-            <div class="col-md-4 offset-5">
-                <a class="btn btn-info" style="margin-top: 20px; height: 50px; background: #1D5D9B; font-size: 1.5em; text-align: center; color: #fff;
+            <div class="col-md-3 offset-3">
+                <a class="btn btn-info" style="margin-top: 20px; width: 268px; height: 50px; background: #1D5D9B; font-size: 1.5em; text-align: center; color: #fff;
                 font-weight: 500;"  href="{% url 'myapp:game' %}">Proceed to Simulation</a>
-                <!-- <a type="submit" style="width: 50%;
-                        height: 45px;
-                        background: #0DCAF0;
-                        border: none;
-                        outline: none;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 1em;
-                        color: #fff;
-                        font-weight: 500;">Proceed to Simulation</a> -->
             </div>
+            <div class="col-md-4">
+                <a class="btn btn-info" style="margin-top: 20px; width: 268px; height: 50px; background: #1D5D9B; font-size: 1.5em; text-align: center; color: #fff;
+            font-weight: 500;" href="{% url 'myapp:download_csv' %}" class="btn btn-primary">Download CSV</a>
+            </div>
+            <br>
+            
         </div>
     </div>
 
@@ -168,7 +165,7 @@
     <br>
     <br>
     <br>
-    <div class="container my-4">
+    <!-- <div class="container my-4">
         <h1>Proceed Information</h1>
         <p>Source Latitude: {{ context.source_latitude }}</p>
         <p>Source Longitude: {{ context.source_longitude }}</p>
@@ -180,17 +177,11 @@
             <p>Destination Latitude: {{ context.next_latitude }}</p>
             <p>Destination Longitude: {{ context.next_longitude }}</p>
         {% endif %}
-        <!-- <p>Flight Path: {{ flight_path }}</p> -->
+
         <p>Last Known Position (LKP) Latitude: {{ context.lkp_latitude }}</p>
         <p>Last Known Position (LKP) Longitude: {{ context.lkp_longitude }}</p>
 
-        <!-- <form id="crashForm" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="form_id" value="crashTime">
-            <label for="crashTime">Enter Time of Crash:</label>
-            <input type="datetime-local" id="crashTimeInput" name="crashTime" required>
-            <button type="button" id="submitCrashTime">Submit</button>
-        </form> -->
+
         <br>
 
         <form action="" method="POST">
@@ -261,7 +252,7 @@
         
                 
 
-    </div>
+    </div> -->
 
     
     
