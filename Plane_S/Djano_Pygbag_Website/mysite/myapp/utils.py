@@ -392,16 +392,36 @@ def simulate_reverse_drift(recovered_body):
     return np.array(trajectory)
 
 def find_cell(lat, lon, lat_lng_li):
+    # for i in range(len(lat_lng_li)):
+    #     for j in range(len(lat_lng_li[0])):
+    #         lat_range = lat_lng_li[i][j][0]
+    #         lon_range = lat_lng_li[i][j][1]
+    #         if lat_range[0] <= lat <= lat_range[1] and lon_range[0] <= lon <= lon_range[1]:
+    #             return [i, j]
+    # return None
+    point = [lat, lon]
+    lat_li = []
+    lng_li = []
+
     for i in range(len(lat_lng_li)):
-        for j in range(len(lat_lng_li[0])):
-            lat_range = lat_lng_li[i][j][0]
-            lon_range = lat_lng_li[i][j][1]
-            if lat_range[0] <= lat <= lat_range[1] and lon_range[0] <= lon <= lon_range[1]:
-                return [i, j]
-    return None
+        lat_li.append((lat_lng_li[i][0][0][0]+lat_lng_li[i][0][0][1])/2)
+
+    print(len(lat_li))
+
+    for i in range(len(lat_lng_li[0])):
+        lng_li.append((lat_lng_li[0][i][1][0]+lat_lng_li[0][i][1][1])/2)
+
+    print(lng_li)
+
+    lat_distances = [abs(lat-point[0]) for lat in lat_li]
+    lng_distances = [abs(lng-point[1]) for lng in lng_li]
+    row = lat_distances.index(min(lat_distances))
+    col = lng_distances.index(min(lng_distances))
+    return [row, col]
 
 
-def plot_reverse_drift_trajectories(recovered_bodies, lat_lng_li):
+def plot_reverse_drift_trajectories(recovered_bodies, lat_lng_li, lkp_lat, lkp_lng):
+    print(lat_lng_li)
     rd_trajectories = []
 
     for recovered_body in recovered_bodies:
@@ -478,19 +498,26 @@ def plot_reverse_drift_trajectories(recovered_bodies, lat_lng_li):
     ax[1].legend()
     ax[1].grid(True)
 
+    # Save the figure
+    plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
+
     bottom_left = [np.min(all_positions[:, 0]), np.min(all_positions[:, 1])]
     top_left = [np.max(all_positions[:, 0]), np.min(all_positions[:, 1])]
     top_right = [np.max(all_positions[:, 0]), np.max(all_positions[:, 1])]
     bottom_right = [np.min(all_positions[:, 0]), np.max(all_positions[:, 1])]
+    
+    print(top_right, top_left, bottom_left, bottom_right)
 
     bottom_left = find_cell(bottom_left[0], bottom_left[1], lat_lng_li)
     top_left = find_cell(top_left[0], top_left[1], lat_lng_li)
     top_right = find_cell(top_right[0], top_right[1], lat_lng_li)
     bottom_right = find_cell(bottom_right[0], bottom_right[1], lat_lng_li)
 
+    print(top_right, top_left, bottom_left, bottom_right)
 
-    lon_grid, lat_grid = np.meshgrid(np.linspace(np.min(all_positions[:, 1]), np.max(all_positions[:, 1]), num=top_right[1]-top_left[1]),
-                                     np.linspace(np.min(all_positions[:, 0]), np.max(all_positions[:, 0]), num=bottom_right[0]-top_right[0]))
+
+    lon_grid, lat_grid = np.meshgrid(np.linspace(lkp_lng-0.75, lkp_lng+0.75, num=96),
+                                     np.linspace(lkp_lat-0.75, lkp_lat+0.75, num=96))
     points_grid = np.vstack([lat_grid.ravel(), lon_grid.ravel()]).T
 
     # Evaluate KDE model on grid points
@@ -501,12 +528,10 @@ def plot_reverse_drift_trajectories(recovered_bodies, lat_lng_li):
     shrinked_grid = shrinked_grid-mini
     shrinked_grid = shrinked_grid/(maxi-mini)
     
-    shrinked_rd_grid = np.zeros((96,96))
-    shrinked_rd_grid[top_right[0]:bottom_right[0], top_left[1]:top_right[1]] = shrinked_grid
+    # shrinked_rd_grid = np.zeros((96,96))
+    # shrinked_rd_grid[top_right[0]:bottom_right[0], top_left[1]:top_right[1]] = shrinked_grid
 
-    # Save the figure
-    plt.savefig('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\myapp\\static\\myapp\\images\\my_plot.png')
 
     # Return the density grid as a 96x96 array
-    return density_grid[::-1], shrinked_rd_grid[::-1]
+    return density_grid[::-1], shrinked_grid[::-1]
 

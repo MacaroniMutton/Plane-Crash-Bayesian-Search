@@ -30,14 +30,20 @@ class Game:
         gauss_distr = distributions_data['gaussian']
         lat_lng_li = distributions_data['lat_lng_li']
         circular_dist = distributions_data['circular_uniform']
-        shrinked_rd_dist = distributions_data['shrinked_rd_dist']
         self.lkp_latitude = distributions_data['lkp_latitude']
         self.lkp_longitude = distributions_data['lkp_longitude']
         gauss_distr = gauss_distr/gauss_distr.sum()
         circular_dist = circular_dist/circular_dist.sum()
-        shrinked_rd_dist = shrinked_rd_dist/shrinked_rd_dist.sum()
         first_dist = gauss_distr*0.5 + circular_dist*0.5
-        final_dist = first_dist*0.7 + shrinked_rd_dist*0.3
+        circular_dist[circular_dist==0] = 1e-35
+        if "shrinked_rd_dist" in distributions_data.keys():
+            shrinked_rd_dist = distributions_data['shrinked_rd_dist']
+            shrinked_rd_dist = shrinked_rd_dist/shrinked_rd_dist.sum()
+            shrinked_rd_dist[shrinked_rd_dist==0] = 1e-35
+            # shrinked_rd_dist = shrinked_rd_dist * 2
+            final_dist = first_dist*0.7 + 0.3*shrinked_rd_dist
+        else:
+            final_dist = first_dist
 
         self.plane_coords = [30, 40]
         self.tilemap = Tilemap(self, ROWS, COLUMNS, CELL_SIZE, self.cmap, bathy_li, final_dist, lat_lng_li, self.plane_coords)

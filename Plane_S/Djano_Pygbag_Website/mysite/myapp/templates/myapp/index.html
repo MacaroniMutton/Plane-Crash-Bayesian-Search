@@ -77,8 +77,10 @@
         <h2 class="logo">Saroops</h2>
         <nav class="navigation">
             <a href="{% url 'myapp:index' %}">Home</a>
-            <a href="{% url 'myapp:index' %}">About</a>
+            <a href="{% url 'myapp:about' %}">About</a>
+            {% if user.is_authenticated %}
             <a href="{% url 'myapp:services' %}">Services</a>
+            {% endif %}
             <a href="{% url 'myapp:contact' %}">Contact</a>
             <button class="btnlogin-popup">Login</button>
         </nav>

@@ -14,6 +14,8 @@ import os
 import pandas as pd
 from django.http import HttpResponse
 from .ProbSimsReportGen.main import Game
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -53,7 +55,7 @@ def index(request):
 
     return render(request, 'myapp/index.html')
 
-
+@login_required
 def services(request):
     lat = None
     lng = None
@@ -213,7 +215,7 @@ def services(request):
     
     return render(request, "myapp/services.html", {'latitude': lat, 'longitude': lng})
 
-
+@login_required
 def flightInfo(request):
     flight = FlightInfo.objects.filter(user=request.user)
     context = json.loads(flight[0].context)
@@ -242,7 +244,7 @@ def flightInfo(request):
             with open('C:\\Users\\Manan Kher\\OneDrive\\Documents\\MINI_PROJECT\\Plane-Crash-Bayesian-Search\\Plane_S\\Djano_Pygbag_Website\\mysite\\ProbSims\\distributions_data.pkl', 'rb') as fp:
                 distributions_data = pickle.load(fp)
 
-            rd_dist, shrinked_rd_dist = plot_reverse_drift_trajectories(recoveredBodies, distributions_data['lat_lng_li'])
+            rd_dist, shrinked_rd_dist = plot_reverse_drift_trajectories(recoveredBodies, distributions_data['lat_lng_li'], distributions_data['lkp_latitude'], distributions_data['lkp_longitude'])
             distributions_data['rd_dist'] = rd_dist
             distributions_data['shrinked_rd_dist'] = shrinked_rd_dist
 
@@ -275,7 +277,7 @@ def flightInfo(request):
 #     # Handle invalid requests or non-ajax requests
 #     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-
+@login_required
 def rd_view(request):
     return render(request, 'myapp/rd.html')
 
@@ -287,6 +289,7 @@ def exec_pygbag():
     filename = 'probsims.apk'
     shutil.move(os.path.join(src, filename), os.path.join(dst, filename))
 
+@login_required
 def game(request):
     exec_pygbag()
     return render(request, 'myapp/game.html')
@@ -294,6 +297,7 @@ def game(request):
 def contact(request):
     return render(request, 'myapp/contact.html')
 
+@login_required
 def download_dataframe_as_csv(request):
     # Create a sample pandas DataFrame (replace this with your DataFrame creation logic)
     game = Game()
@@ -307,3 +311,10 @@ def download_dataframe_as_csv(request):
     df.to_csv(path_or_buf=response, index=False)
 
     return response
+
+def about(request):
+    return render(request, 'myapp/about.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('myapp:index')

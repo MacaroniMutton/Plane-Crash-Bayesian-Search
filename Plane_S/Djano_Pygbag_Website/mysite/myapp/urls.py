@@ -11,4 +11,6 @@ urlpatterns = [
     path("game/", views.game, name="game"),
     path("contact/", views.contact, name="contact"),
     path('download-csv/', views.download_dataframe_as_csv, name='download_csv'),
+    path('about/', views.about, name="about"),
+    path('logout/', views.logout_view, name="logout"),
 ]

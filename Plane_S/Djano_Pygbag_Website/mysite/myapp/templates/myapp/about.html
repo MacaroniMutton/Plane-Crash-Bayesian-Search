@@ -1,0 +1,38 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}
+    <link rel="stylesheet" href="{% static 'myapp/a_style.css' %}"> 
+    <title>About Our Project</title>
+    {% endblock %}
+</head>
+<body>
+    {% block body %}
+    <div class="heading">
+        <h1>ABOUT OUR PROJECT</h1>
+        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Et vel aperiam, eius adipisci debitis porro dicta aut repellendus nemo expedita culpa est reiciendis, sint nobis tenetur odit, eum magni aliquam?</p>
+    </div>
+    <div class="container">
+        <section class="about">
+            <div class="about-image">
+                <img src="{% static 'myapp/images/landscape-with-plane-flying-sky.jpg' %}"> 
+            </div>
+
+            <div class="about-content">
+                <h2>Plane Crash Bayesian Search</h2>
+                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
+                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+                    It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. 
+                    It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+                <a href="https://en.wikipedia.org/wiki/Search_and_Rescue_Optimal_Planning_System" class="read-more">Read More</a>
+            </div>
+
+        </section>
+    </div>
+    {% endblock %}
+</body>
+</html>
