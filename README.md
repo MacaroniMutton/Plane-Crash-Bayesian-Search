@@ -1,7 +1,7 @@
 # Optimizing Search for Lost Objects in Water Bodies
 
 **Project Description:**  
-"Optimizing Search for Lost Objects in Water Bodies" is a web-based tool designed to assist in locating objects such as airplanes and ships lost in vast water bodies. This project utilizes **Bayesian Search Theory** and the **A* Search Algorithm** to create probability-based search paths, enhancing the efficiency and success rate of search and rescue operations.
+"Optimizing Search for Lost Objects in Water Bodies" is a web-based tool designed to assist in locating objects such as airplanes and ships lost in vast water bodies. This project utilizes **Bayesian Search Theory** and the **A\* Search Algorithm** to create probability-based search paths, enhancing the efficiency and success rate of search and rescue operations.
 
 ## Introduction
 
